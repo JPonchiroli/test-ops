@@ -1,15 +1,15 @@
 import { When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 When("preencho a descricao com {string}", (value: string) => {
-  cy.get("#income-title").clear().type(value);
+  cy.get("[data-cy=income-title]").clear().type(value);
 });
 
-When("preencho o valor com {string}", (value: string) => {
-  cy.get("#income-amount").clear().type(value);
+When("preencho o valor da entrada com {string}", (value: string) => {
+  cy.get("[data-cy=income-amount]").clear().type(value);
 });
 
 When("seleciono a origem {string}", (source: string) => {
-  cy.get("#income-source").select(source);
+  cy.get("[data-cy=income-source]").select(source);
 });
 
 Then("o card {string} atualiza o valor total", (cardTitle: string) => {

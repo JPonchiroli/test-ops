@@ -35,3 +35,7 @@ Then("vejo o alerta {string}", (message: string) => {
 When("clico no botao {string}", (text: string) => {
   cy.contains("button", text).click();
 });
+
+When("clico em {string}", (text: string) => {
+  cy.contains("button", text).click();
+});

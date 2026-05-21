@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReceiptUploadPanel } from "@/components/receipt-upload-panel";
 
@@ -32,25 +32,42 @@ describe("ReceiptUploadPanel", () => {
     expect(screen.getByText("nota-mercado.pdf")).toBeInTheDocument();
   });
 
-  test.skip(
-    "TODO implement: envia a nota, extrai os dados e salva a despesa",
-    async () => {
-      const user = userEvent.setup();
-      const onSubmitExpense = jest.fn().mockResolvedValue(undefined);
+  test("envia a nota, extrai os dados e salva a despesa", async () => {
+    const originalFetch = global.fetch;
+    const user = userEvent.setup();
+    const onSubmitExpense = jest.fn().mockResolvedValue(undefined);
 
-      render(<ReceiptUploadPanel onSubmitExpense={onSubmitExpense} />);
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        establishmentName: "Mercado Teste",
+        amount: 150.0,
+        suggestedCategory: "Alimentacao",
+        purchaseDate: "2026-05-20",
+      }),
+    } as unknown as Response);
 
-      const input = screen.getByLabelText(/arquivo da nota fiscal/i);
-      const file = new File(["dummy"], "nota-mercado.pdf", {
-        type: "application/pdf",
+    render(<ReceiptUploadPanel onSubmitExpense={onSubmitExpense} />);
+
+    const input = screen.getByLabelText(/arquivo da nota fiscal/i);
+    const file = new File(["dummy"], "nota-mercado.pdf", {
+      type: "application/pdf",
+    });
+
+    await user.upload(input, file);
+    await user.click(
+      screen.getByRole("button", { name: /analisar nota fiscal/i }),
+    );
+
+    await waitFor(() => {
+      expect(onSubmitExpense).toHaveBeenCalledWith({
+        amount: 150,
+        category: "Alimentacao",
+        date: "2026-05-20",
+        title: "Mercado Teste",
       });
+    });
 
-      await user.upload(input, file);
-      await user.click(
-        screen.getByRole("button", { name: /analisar nota fiscal/i }),
-      );
-
-      expect(onSubmitExpense).toHaveBeenCalled();
-    },
-  );
+    global.fetch = originalFetch;
+  });
 });

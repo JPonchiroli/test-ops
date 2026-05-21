@@ -17,7 +17,6 @@ Feature: Criação de saída manual no Firestore
     # TODO implement: iniciar o app com variáveis Firebase válidas no ambiente de teste
     Given que acesso a pagina inicial
 
-  @todo
   Scenario: Salva uma saida manual com dados validos e exibe na lista
     When seleciono a aba "Saída Manual"
     And preencho o titulo com "Mercado semanal"
@@ -27,7 +26,6 @@ Feature: Criação de saída manual no Firestore
     Then "Mercado semanal" aparece na lista de lancamentos
     And o card "Despesas" foi atualizado
 
-  @todo
   Scenario: Exibe confirmacao e limpa o formulario apos salvar
     When seleciono a aba "Saída Manual"
     And preencho o titulo com "Combustível"
@@ -37,7 +35,6 @@ Feature: Criação de saída manual no Firestore
     Then aparece a mensagem "Despesa cadastrada com sucesso."
     And os campos titulo e valor estao vazios
 
-  @todo
   Scenario: Permite excluir uma saida existente da lista
     When seleciono a aba "Saída Manual"
     And preencho o titulo com "Despesa para exclusão"
