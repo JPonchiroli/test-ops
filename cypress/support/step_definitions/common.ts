@@ -36,6 +36,12 @@ When("clico em {string}", (buttonText: string) => {
   cy.contains("button", buttonText).click();
 });
 
+<<<<<<< HEAD
 When("clico no botao {string}", (buttonText: string) => {
   cy.contains("button", buttonText).click();
 });
+=======
+When("clico em {string}", (text: string) => {
+  cy.contains("button", text).click();
+});
+>>>>>>> c61de8b8d670f90b71aaf18a8b097c25c1cd03c0

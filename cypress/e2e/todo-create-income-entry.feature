@@ -16,29 +16,26 @@ Feature: Criação de entrada financeira no Firestore
     # TODO implement: iniciar o app com variáveis Firebase válidas no ambiente de teste
     Given que acesso a pagina inicial
 
-  @todo
   Scenario: Salva uma entrada e atualiza o card de entradas
     When preencho a descricao com "Salário de abril"
-    And preencho o valor com "5000"
+    And preencho o valor da entrada com "5000"
     And seleciono a origem "Salario"
     And clico em "Salvar entrada"
     Then o card "Entradas" atualiza o valor total
     And o saldo no header foi atualizado
     And aparece a mensagem "Entrada cadastrada com sucesso."
 
-  @todo
   Scenario: Exibe confirmacao e reseta o formulario apos salvar
     When preencho a descricao com "Freelance"
-    And preencho o valor com "1200"
+    And preencho o valor da entrada com "1200"
     And seleciono a origem "Outros"
     And clico em "Salvar entrada"
     Then aparece a mensagem "Entrada cadastrada com sucesso."
     And o formulario de entrada esta limpo
 
-  @todo
   Scenario: Entradas persistidas aparecem apos recarregar a pagina
     When preencho a descricao com "Bônus"
-    And preencho o valor com "2500"
+    And preencho o valor da entrada com "2500"
     And seleciono a origem "Salario"
     And clico em "Salvar entrada"
     Then a entrada "Bônus" persiste apos recarregar a pagina

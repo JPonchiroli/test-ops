@@ -157,6 +157,7 @@ export function IncomeEntryForm({
             <input
               aria-invalid={Boolean(errors.title)}
               className="field-input"
+              data-cy="income-title"
               id="income-title"
               name="title"
               onChange={handleInputChange}
@@ -179,6 +180,7 @@ export function IncomeEntryForm({
               <input
                 aria-invalid={Boolean(errors.amount)}
                 className="field-input"
+                data-cy="income-amount"
                 id="income-amount"
                 name="amount"
                 onChange={handleInputChange}
@@ -222,6 +224,7 @@ export function IncomeEntryForm({
             <select
               aria-invalid={Boolean(errors.source)}
               className="field-input"
+              data-cy="income-source"
               id="income-source"
               name="source"
               onChange={handleInputChange}
@@ -257,6 +260,7 @@ export function IncomeEntryForm({
 
           <button
             className="w-full rounded-xl bg-[var(--accent-forest)] px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.1em] text-white uppercase transition hover:bg-[rgba(31,138,112,0.88)] hover:shadow-[0_4px_16px_rgba(31,138,112,0.3)] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+            data-cy="save-income-entry"
             disabled={isSubmitting}
             type="submit"
           >

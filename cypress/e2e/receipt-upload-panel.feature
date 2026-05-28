@@ -2,7 +2,11 @@ Feature: Painel de upload de nota fiscal
 
   Background:
     Given que acesso a pagina inicial
+<<<<<<< HEAD
     And seleciono a aba "Nota Fiscal"
+=======
+    When clico no botao "Nota Fiscal"
+>>>>>>> c61de8b8d670f90b71aaf18a8b097c25c1cd03c0
 
   Scenario: Renderiza o titulo do painel de upload
     Then vejo o heading "Nota fiscal — PDF ou imagem"

@@ -157,6 +157,7 @@ export function ManualExpenseForm({
             <input
               aria-invalid={Boolean(errors.title)}
               className="field-input"
+              data-cy="expense-title"
               id="title"
               name="title"
               onChange={handleInputChange}
@@ -179,6 +180,7 @@ export function ManualExpenseForm({
               <input
                 aria-invalid={Boolean(errors.amount)}
                 className="field-input"
+                data-cy="expense-amount"
                 id="amount"
                 min="0"
                 name="amount"
@@ -223,6 +225,7 @@ export function ManualExpenseForm({
             <select
               aria-invalid={Boolean(errors.category)}
               className="field-input"
+              data-cy="expense-category"
               id="category"
               name="category"
               onChange={handleInputChange}
@@ -258,6 +261,7 @@ export function ManualExpenseForm({
 
           <button
             className="w-full rounded-xl bg-[var(--accent-amber)] px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.1em] text-white uppercase transition hover:bg-[rgba(217,123,44,0.88)] hover:shadow-[0_4px_16px_rgba(217,123,44,0.3)] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+            data-cy="save-expense"
             disabled={isSubmitting}
             type="submit"
           >

@@ -105,7 +105,7 @@ export function ReceiptUploadPanel({
             Feature 03
           </p>
           <h2 className="mt-0.5 text-[1rem] font-semibold text-[var(--foreground)]">
-            Nota fiscal — PDF ou imagem
+            Saída por leitura de PDF ou imagem
           </h2>
         </div>
       </div>
@@ -153,16 +153,23 @@ export function ReceiptUploadPanel({
           <input
             accept="application/pdf,image/jpeg,image/png,image/webp"
             className="field-input cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-[rgba(31,42,34,0.07)] file:px-2.5 file:py-1 file:text-[10.5px] file:font-medium file:text-[var(--foreground)] file:tracking-wide hover:file:bg-[rgba(31,42,34,0.12)]"
+            data-cy="receipt-file-input"
             id={inputId}
             onChange={handleFileChange}
             type="file"
           />
-          <p className="mt-1 text-[10.5px] leading-[1.55] text-[var(--muted)]/70">
+          <p
+            data-cy="receipt-supported-types"
+            className="mt-1 text-[10.5px] leading-[1.55] text-[var(--muted)]/70"
+          >
             Tipos aceitos: {getSupportedReceiptTypesLabel()}.
           </p>
           {selectedFile ? (
-            <p className="mt-1 text-[11.5px] font-medium text-[var(--foreground)]">
-              {selectedFile.name}
+            <p
+              data-cy="receipt-selected-file"
+              className="mt-1 text-[11.5px] font-medium text-[var(--foreground)]"
+            >
+              Arquivo pronto para análise: <span>{selectedFile.name}</span>
             </p>
           ) : null}
         </div>
@@ -187,11 +194,12 @@ export function ReceiptUploadPanel({
         <div className="flex gap-2.5">
           <button
             className="flex-1 rounded-xl bg-[var(--accent-clay)] px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.1em] text-white uppercase transition hover:bg-[rgba(201,92,84,0.88)] hover:shadow-[0_4px_16px_rgba(201,92,84,0.28)] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+            data-cy="receipt-analyze-button"
             disabled={isAnalyzing || isSubmitting}
             onClick={() => void handleAnalyzeReceipt()}
             type="button"
           >
-            {isAnalyzing ? "Analisando…" : "Analisar nota"}
+            {isAnalyzing ? "Analisando…" : "Analisar nota fiscal"}
           </button>
           <button
             className="rounded-xl border border-[rgba(31,42,34,0.12)] bg-white/70 px-3.5 py-2.5 text-[11.5px] font-semibold tracking-[0.08em] text-[var(--muted)] uppercase transition hover:bg-white hover:text-[var(--foreground)]"
