@@ -153,7 +153,6 @@ cypress/e2e/todo-ocr-extraction.feature       ← Feature 03: nota fiscal`}</Cod
     Given que acesso a pagina inicial
     When seleciono a aba "Entradas"
     And preencho a descricao com "Salário de abril"
-    And preencho o valor com "5000"
     And seleciono a origem "Salário"
     And clico em "Salvar entrada"
     Then o card "Entradas" exibe o novo total

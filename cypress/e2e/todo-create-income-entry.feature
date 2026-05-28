@@ -1,6 +1,6 @@
 # TODO implement: Desafio 1 — Persistência de entradas no Firestore
 #
-# Pré-requisito: concluir createIncomeEntry() em src/services/income-entry-service.ts
+# Pré-requisito: concluir fThen o card "Entradas" atualiza o valor total() em src/services/income-entry-service.ts
 # e subscribeToIncomeEntries() para sincronização em tempo real.
 #
 # O que testar:
@@ -23,6 +23,7 @@ Feature: Criação de entrada financeira no Firestore
     And seleciono a origem "Salario"
     And clico em "Salvar entrada"
     Then o card "Entradas" atualiza o valor total
+    And o saldo no header foi atualizado
     And aparece a mensagem "Entrada cadastrada com sucesso."
 
   @todo

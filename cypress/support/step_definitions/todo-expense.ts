@@ -1,7 +1,10 @@
 import { When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 When("seleciono a aba {string}", (tabName: string) => {
-  cy.contains("button", tabName).click();
+  cy.contains("button", tabName)
+    .should("be.visible")
+    .click({ force: true })
+    .then(() => cy.wait(200));
 });
 
 When("preencho o titulo com {string}", (value: string) => {
@@ -9,7 +12,15 @@ When("preencho o titulo com {string}", (value: string) => {
 });
 
 When("preencho o valor com {string}", (value: string) => {
-  cy.get("#amount").clear().type(value);
+  cy.get("body").then(($body) => {
+    if ($body.find('#amount').length) {
+      cy.get('#amount').clear().type(value);
+    } else if ($body.find('#income-amount').length) {
+      cy.get('#income-amount').clear().type(value);
+    } else {
+      throw new Error('Campo de valor não encontrado (#amount ou #income-amount)');
+    }
+  });
 });
 
 When("seleciono a categoria {string}", (category: string) => {

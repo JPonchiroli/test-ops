@@ -4,10 +4,6 @@ When("preencho a descricao com {string}", (value: string) => {
   cy.get("#income-title").clear().type(value);
 });
 
-When("preencho o valor com {string}", (value: string) => {
-  cy.get("#income-amount").clear().type(value);
-});
-
 When("seleciono a origem {string}", (source: string) => {
   cy.get("#income-source").select(source);
 });

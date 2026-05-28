@@ -9,7 +9,7 @@ Then("vejo o texto {string}", (text: string) => {
 });
 
 Then("vejo o heading {string}", (text: string) => {
-  cy.contains("h2", text).should("be.visible");
+  cy.get("h2").contains(text).should("be.visible");
 });
 
 Then("vejo o card com titulo {string}", (title: string) => {
@@ -32,6 +32,10 @@ Then("vejo o alerta {string}", (message: string) => {
   cy.contains('[role="alert"]', message).should("be.visible");
 });
 
-When("clico no botao {string}", (text: string) => {
-  cy.contains("button", text).click();
+When("clico em {string}", (buttonText: string) => {
+  cy.contains("button", buttonText).click();
+});
+
+When("clico no botao {string}", (buttonText: string) => {
+  cy.contains("button", buttonText).click();
 });
