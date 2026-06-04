@@ -95,51 +95,22 @@ export async function POST(request: Request) {
   //
   // ────────────────────────────────────────────────────────────────────────
 
-  function getFallbackCategory(fileName: string) {
-    const normalized = fileName.toLowerCase();
-
-    if (/mercado|supermercado|padaria|hortifruti/.test(normalized)) {
-      return "Alimentacao";
-    }
-    if (/farmacia|saude|drogaria|hospital/.test(normalized)) {
-      return "Saude";
-    }
-    if (/uber|99|transporte|taxi|ônibus|onibus|metrô/.test(normalized)) {
-      return "Transporte";
-    }
-    if (/escola|faculdade|curso|educacao/.test(normalized)) {
-      return "Educacao";
-    }
-    if (/cinema|teatro|show|lazer|restaurante/.test(normalized)) {
-      return "Lazer";
-    }
-    if (/aluguel|iptu|condominio|condomínio|luz|agua|água/.test(normalized)) {
-      return "Moradia";
-    }
-
-    return "Outros";
-  }
-
-  function getFallbackAmount(fileName: string) {
-    const match = fileName.match(/(\d+[.,]\d{2})/);
-    if (match) {
-      return Number(match[1].replace(",", "."));
-    }
-    return 123.45;
-  }
-
-  const establishmentName = receipt.name.replace(/\.[^/.]+$/, "") || "Despesa importada";
-  const amount = getFallbackAmount(receipt.name);
-  const suggestedCategory = getFallbackCategory(receipt.name);
-  const purchaseDate = new Date().toISOString().slice(0, 10);
+  // TODO implement: substitua este bloco pelo provedor de OCR/IA escolhido.
+  // Enquanto não implementado, retorna 501 para sinalizar ao pipeline que a feature está incompleta.
+  void base64;
+  void mediaType;
 
   return Response.json(
     {
-      establishmentName,
-      amount,
-      suggestedCategory,
-      purchaseDate,
+      error:
+        "Rota de OCR ainda não implementada. Integre um provedor (Claude API, Google Vision ou Tesseract.js) para substituir este stub.",
+      expectedFields: [
+        "establishmentName",
+        "amount",
+        "suggestedCategory",
+        "purchaseDate",
+      ],
     },
-    { status: 200 },
+    { status: 501 },
   );
 }

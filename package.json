@@ -12,7 +12,10 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --headless",
     "test:e2e": "start-server-and-test dev 3000 cypress:run",
-    "test:e2e:ci": "start-server-and-test start 3000 cypress:run"
+    "test:e2e:ci": "start-server-and-test start 3000 cypress:run",
+    "playwright:bddgen": "bddgen --config playwright/playwright.config.ts",
+    "playwright:run": "playwright test --config playwright/playwright.config.ts",
+    "test:e2e:playwright": "npm run playwright:bddgen && start-server-and-test dev 3000 playwright:run"
   },
   "cypress-cucumber-preprocessor": {
     "stepDefinitions": "cypress/support/step_definitions/**/*.ts"
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -40,6 +44,9 @@
     "eslint-config-next": "16.2.1",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "mochawesome": "^7.1.4",
+    "playwright": "^1.60.0",
+    "playwright-bdd": "^9.0.0",
     "start-server-and-test": "^3.0.4",
     "tailwindcss": "^4",
     "typescript": "^5"
