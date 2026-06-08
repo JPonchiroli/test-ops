@@ -9,9 +9,15 @@ When("seleciono a aba {string}", (tabName: string) => {
 
   const tabId = tabMap[tabName] ?? null;
 
-  if (tabId) {
+  // Click the income tab first (no-op for state) to ensure React has hydrated
+  // and its event listeners are active before clicking the target tab.
+  // Without this, subsequent cy.visit("/") calls trigger a Next.js soft navigation
+  // where the click fires before React re-attaches its handlers.
+  cy.get("[data-cy=tab-income]").click();
+
+  if (tabId && tabId !== "tab-income") {
     cy.get(`[data-cy=${tabId}]`).click();
-  } else {
+  } else if (!tabId) {
     cy.contains("button", tabName).click();
   }
 });

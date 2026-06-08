@@ -2,7 +2,8 @@ Feature: Formulario de saida manual
 
   Background:
     Given que acesso a pagina inicial
-    When clico no botao "Saída Manual"
+    When seleciono a aba "Saída Manual"
+    Then vejo o heading "Saída manual"
 
   Scenario: Renderiza o titulo do formulario
     Then vejo o heading "Saída manual"
