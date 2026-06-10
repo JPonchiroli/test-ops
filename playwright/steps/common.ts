@@ -10,7 +10,9 @@ Given("que acesso a pagina inicial", async ({ page }) => {
 // ── Assertions ───────────────────────────────────────────────────────────────
 
 Then("vejo o texto {string}", async ({ page }, text: string) => {
-  await expect(page.getByText(text)).toBeVisible();
+  // .first() espelha o cy.contains() do Cypress: o texto pode aparecer em mais
+  // de um lugar (ex.: card e feedback), e basta confirmar que esta visivel.
+  await expect(page.getByText(text).first()).toBeVisible();
 });
 
 Then("vejo o heading {string}", async ({ page }, text: string) => {
@@ -18,7 +20,7 @@ Then("vejo o heading {string}", async ({ page }, text: string) => {
 });
 
 Then("vejo o card com titulo {string}", async ({ page }, title: string) => {
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title).first()).toBeVisible();
 });
 
 Then("vejo o label {string}", async ({ page }, label: string) => {

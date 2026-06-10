@@ -9,6 +9,10 @@
 #   - Mensagem de sucesso "Despesa criada automaticamente a partir da nota fiscal." é exibida
 #   - A rota retorna os campos esperados no contrato (establishmentName, amount, suggestedCategory)
 
+# @skip: Feature 03 (OCR) e opcional e a rota /api/receipt-extraction ainda
+# retorna 501 (stub). Estes cenarios so passam apos integrar um provedor de OCR.
+# O contrato atual (501) ja e coberto por receipt-extraction-api.feature.
+@skip
 Feature: Extração de nota fiscal por OCR
 
   Background:
