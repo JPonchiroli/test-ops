@@ -184,13 +184,11 @@ check that page contains "Despesa cadastrada com sucesso."
 ```text
 1. Introdução
    - Contexto do projeto Fluxo Financeiro
-   - Diagrama: código local → push → GitHub → webhook → Jenkins → Vercel
+   - Diagrama: código local → push → GitHub → webhook → Vercel
 
 2. Semana 1 — Cypress + Cucumber
    - Implementação das features 01, 02 e 03
-   - Evidência do Jenkins bloqueando o deploy (print + log)
    - Screenshots do Cypress durante a falha
-   - Pipeline verde após correção
    - Análise de causa raiz (RCA)
 
 3. Semana 2 — Playwright + Cucumber

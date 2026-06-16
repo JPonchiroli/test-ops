@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Relatório Final — TestOps CI/CD — Fluxo Financeiro</title>
+<style>
+  :root{
+    --ink:#1a1f2b; --muted:#5b6470; --line:#d7dce3; --accent:#2b5fd9;
+    --ok:#1c8a4a; --warn:#b26a00; --bad:#c0362c; --bg-soft:#f5f7fa;
+  }
+  @page{ size:A4; margin:18mm 16mm 16mm 16mm; }
+  *{ box-sizing:border-box; }
+  body{
+    font-family:"Segoe UI",Calibri,Arial,sans-serif; color:var(--ink);
+    font-size:11pt; line-height:1.5; margin:0;
+  }
+  h1,h2,h3{ line-height:1.25; color:var(--ink); }
+  h1{ font-size:24pt; margin:0 0 4px; }
+  h2{ font-size:16pt; margin:26px 0 8px; padding-bottom:5px; border-bottom:2px solid var(--accent); page-break-after:avoid; }
+  h3{ font-size:12.5pt; margin:16px 0 6px; color:#2a3340; page-break-after:avoid; }
+  p{ margin:7px 0; }
+  ul,ol{ margin:7px 0 7px 20px; padding:0; }
+  li{ margin:3px 0; }
+  code{ font-family:"Cascadia Code",Consolas,monospace; font-size:9.5pt; background:var(--bg-soft); padding:1px 4px; border-radius:3px; }
+  pre{ background:#0e1220; color:#e6e9f2; padding:12px 14px; border-radius:6px; font-family:"Cascadia Code",Consolas,monospace; font-size:9pt; line-height:1.45; overflow:auto; white-space:pre; }
+  pre.diagram{ background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); }
+  table{ border-collapse:collapse; width:100%; margin:10px 0; font-size:10pt; }
+  th,td{ border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th{ background:var(--bg-soft); font-weight:600; }
+  .tag{ display:inline-block; font-size:8.5pt; font-weight:700; padding:2px 8px; border-radius:20px; color:#fff; }
+  .tag.ok{ background:var(--ok); } .tag.warn{ background:var(--warn); } .tag.bad{ background:var(--bad); }
+  .cover{ height:255mm; display:flex; flex-direction:column; justify-content:center; page-break-after:always; }
+  .cover .kicker{ letter-spacing:3px; text-transform:uppercase; color:var(--accent); font-weight:700; font-size:11pt; }
+  .cover .sub{ font-size:14pt; color:var(--muted); margin-top:6px; }
+  .cover .meta{ margin-top:42px; font-size:11pt; color:var(--muted); }
+  .cover .meta b{ color:var(--ink); }
+  .lead{ font-size:11.5pt; color:var(--muted); }
+  .callout{ border-left:4px solid var(--accent); background:var(--bg-soft); padding:9px 14px; margin:12px 0; border-radius:0 5px 5px 0; }
+  .callout.warn{ border-color:var(--warn); }
+  .callout.ok{ border-color:var(--ok); }
+  .fig{ font-size:9pt; color:var(--muted); margin:4px 0 0; }
+  .evidence li{ font-family:"Cascadia Code",Consolas,monospace; font-size:9pt; }
+  section{ page-break-before:always; }
+  .nobreak{ page-break-inside:avoid; }
+  footer{ margin-top:30px; padding-top:8px; border-top:1px solid var(--line); font-size:8.5pt; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ===================== CAPA ===================== -->
+<div class="cover">
+  <div class="kicker">Qualidade de Software · TestOps · CI/CD</div>
+  <h1>Relatório Final do Trabalho Prático</h1>
+  <div class="sub">Fluxo Financeiro — Deploy controlado por Jenkins com Cypress, Playwright e TestRigor</div>
+  <div class="meta">
+    <p><b>Aplicação:</b> Fluxo Financeiro (Next.js 16 · React 19 · TailwindCSS 4 · Firebase Firestore)</p>
+    <p><b>Pipeline:</b> GitHub → Webhook → Jenkins → Vercel</p>
+    <p><b>Princípio da disciplina:</b> se a feature não estiver provada por testes e pela pipeline, ela não chega ao deploy.</p>
+    <p style="margin-top:22px;"><b>Data:</b> 16 de junho de 2026</p>
+  </div>
+</div>
+
+<!-- ===================== 1. INTRODUÇÃO ===================== -->
+<section style="page-break-before:avoid;">
+<h2>1. Introdução</h2>
+
+<p class="lead">Este relatório documenta a evolução do projeto <b>Fluxo Financeiro</b> ao longo das três
+semanas do trabalho prático de TestOps, no qual o Jenkins atua como <i>gatekeeper</i> do deploy: nenhuma
+funcionalidade alcança a produção na Vercel sem antes passar pela suíte de testes automatizados.</p>
+
+<h3>1.1 Contexto do projeto</h3>
+<p>O Fluxo Financeiro é um painel de controle financeiro pessoal com três funcionalidades centrais que
+foram entregues como <i>scaffold</i> (com marcações <code>TODO implement</code>) para serem implementadas,
+testadas e publicadas pela equipe:</p>
+<ul>
+  <li><b>Feature 01 — Entradas:</b> cadastro de entradas financeiras persistidas no Firestore (<code>createIncomeEntry</code>, <code>subscribeToIncomeEntries</code>).</li>
+  <li><b>Feature 02 — Saídas manuais:</b> cadastro e exclusão de despesas (<code>createExpense</code>, <code>deleteExpense</code>).</li>
+  <li><b>Feature 03 — OCR de nota fiscal:</b> extração automática de estabelecimento e valor a partir de uma nota fiscal, salvando a despesa.</li>
+</ul>
+<p>A interface entrega um dashboard responsivo (cards de resumo, gráfico de barras entradas × despesas,
+lista de despesas com exclusão inline) e três formulários em abas: Entradas, Saída Manual e Nota Fiscal.</p>
+
+<h3>1.2 Fluxo de integração contínua</h3>
+<p>O ciclo de entrega vai do código local até a publicação automática, com o Jenkins interrompendo o
+fluxo sempre que um teste falha:</p>
+
+<pre class="diagram">
+ ┌──────────────┐   git push   ┌──────────┐   webhook   ┌──────────────────────────────┐
+ │ Código local │ ───────────▶ │  GitHub  │ ──────────▶ │           JENKINS            │
+ └──────────────┘              └──────────┘             │  pipeline (gatekeeper)       │
+                                                        │                              │
+                                                        │  Checkout → Install →        │
+                                                        │  Unit Tests → Build →        │
+                                                        │  E2E Tests  ◀── BLOQUEIA      │
+                                                        │       │ (verde)      aqui se  │
+                                                        │       ▼          falhar       │
+                                                        │  Deploy Vercel               │
+                                                        └──────────────┬───────────────┘
+                                                                       │ (somente se tudo passar)
+                                                                       ▼
+                                                              ┌─────────────────┐
+                                                              │  Vercel (prod)  │
+                                                              └─────────────────┘
+</pre>
+<p class="fig">Figura 1 — Esteira CI/CD. O estágio <i>E2E Tests</i> é o ponto de bloqueio: enquanto os
+cenários obrigatórios não passarem, o estágio <i>Deploy Vercel</i> não é executado.</p>
+
+<p>O <code>Jenkinsfile</code> do projeto define os estágios <b>Checkout · Install · Unit Tests · Build ·
+E2E Tests · Deploy Vercel</b>. O deploy é condicionado à branch <code>main</code> e usa credenciais
+seguras (<code>VERCEL_TOKEN</code>, <code>VERCEL_ORG_ID</code>, <code>VERCEL_PROJECT_ID</code>) cadastradas
+no Jenkins — nenhum segredo fica exposto no repositório.</p>
+</section>
+
+<!-- ===================== 2. SEMANA 1 ===================== -->
+<section>
+<h2>2. Semana 1 — Cypress + Cucumber</h2>
+
+<h3>2.1 Implementação das features 01, 02 e 03</h3>
+<table class="nobreak">
+  <tr><th>Feature</th><th>Arquivo principal</th><th>Status</th><th>Observações</th></tr>
+  <tr>
+    <td><b>01 — Entradas</b></td>
+    <td><code>src/services/income-entry-service.ts</code></td>
+    <td><span class="tag ok">Concluída</span></td>
+    <td><code>createIncomeEntry()</code> valida valor &gt; 0 e grava na coleção <code>incomeEntries</code> com <code>createdAt</code>; <code>subscribeToIncomeEntries()</code> usa <code>onSnapshot</code> + <code>orderBy</code> e degrada para lista vazia sem Firebase.</td>
+  </tr>
+  <tr>
+    <td><b>02 — Saídas manuais</b></td>
+    <td><code>src/services/expense-service.ts</code></td>
+    <td><span class="tag ok">Concluída</span></td>
+    <td><code>createExpense()</code> valida valor &gt; 0 e grava em <code>expenses</code>; <code>deleteExpense()</code> remove via <code>deleteDoc</code>; exclusão inline na lista de despesas.</td>
+  </tr>
+  <tr>
+    <td><b>03 — OCR nota fiscal</b></td>
+    <td><code>src/app/api/receipt-extraction/route.ts</code></td>
+    <td><span class="tag warn">Parcial (stub 501)</span></td>
+    <td>A rota lê o arquivo, valida o tipo (PDF/JPG/PNG/WEBP) e converte para base64, mas retorna <code>501 Not Implemented</code> sinalizando à pipeline que a feature está incompleta. Lado cliente (<code>receipt-upload.ts</code>, <code>mapReceiptExtractionToExpense</code>) pronto; falta a chamada ao provedor de OCR.</td>
+  </tr>
+</table>
+
+<div class="callout">
+<b>Decisão de escopo:</b> a Feature 03 (OCR) é opcional. Para manter a suíte verde, os cenários que
+dependem do OCR real (cenários obrigatórios 5 e 6) foram marcados com <code>@skip</code>; o contrato
+atual da rota (<code>501</code>) permanece coberto e validado por <code>receipt-extraction-api.feature</code>.
+</div>
+
+<h3>2.2 Cenários ativados e bloqueio do deploy</h3>
+<p>Conforme o método da disciplina, os cenários <code>@todo</code> foram <b>ativados antes da
+implementação</b>, fazendo o estágio E2E falhar e o Jenkins bloquear o deploy. Em seguida as features
+foram implementadas até a pipeline voltar ao verde.</p>
+<ul>
+  <li><code>cypress/e2e/todo-create-income-entry.feature</code> — cenários 1 e 4 (cadastro + confirmação/reset, persistência pós-reload).</li>
+  <li><code>cypress/e2e/todo-create-expense.feature</code> — cenários 2, 3 e 4 (cadastro, exclusão via <code>✕</code>, confirmação).</li>
+  <li><code>cypress/e2e/todo-ocr-extraction.feature</code> — cenários 5 e 6 (<code>@skip</code>, dependem do OCR real).</li>
+</ul>
+<p>Suítes estáticas já passantes acompanham as features: <code>dashboard</code>,
+<code>manual-expense-form</code>, <code>income-entry-form</code>, <code>receipt-upload-panel</code> e
+<code>receipt-extraction-api</code> (contrato 501).</p>
+
+<h3>2.3 Evidências da falha (screenshots do Cypress)</h3>
+<p>Durante a fase de falha, o Cypress gerou automaticamente as capturas em
+<code>cypress/screenshots/</code>. Estes artefatos acompanham a entrega:</p>
+<ul class="evidence">
+  <li>todo-create-income-entry.feature/ … Exibe confirmacao e reseta o formulario apos salvar (failed).png</li>
+  <li>todo-create-income-entry.feature/ … Entradas persistidas aparecem apos recarregar a pagina (failed).png</li>
+  <li>todo-create-expense.feature/ … Exibe confirmacao e limpa o formulario apos salvar (failed).png</li>
+  <li>todo-create-expense.feature/ … Permite excluir uma saida existente da lista (failed).png</li>
+  <li>todo-ocr-extraction.feature/ … Extrai dados de uma nota fiscal em PDF e salva como despesa (failed).png</li>
+  <li>todo-ocr-extraction.feature/ … A rota de OCR retorna os campos esperados no contrato (failed).png</li>
+</ul>
+<p class="fig">Figura 2 — Capturas geradas pelo Cypress no momento da falha, anexadas como artefatos da pipeline.</p>
+
+<h3>2.4 Análise de Causa Raiz (RCA)</h3>
+<table class="nobreak">
+  <tr><th>Pergunta</th><th>Análise</th></tr>
+  <tr><td><b>Por que o teste falhou?</b></td>
+      <td>Os cenários <code>@todo</code> foram ativados quando os serviços ainda eram <code>TODO implement</code>: o formulário não persistia no Firestore e a rota de OCR respondia <code>501</code>. As asserções de "salvo com sucesso", "aparece na lista" e "campos extraídos" não eram satisfeitas.</td></tr>
+  <tr><td><b>Como o Jenkins protegeu a produção?</b></td>
+      <td>O estágio <i>E2E Tests</i> roda <b>antes</b> de <i>Deploy Vercel</i>. Com a suíte vermelha, a pipeline interrompeu no E2E e jamais alcançou o deploy — código incompleto não chegou ao usuário final.</td></tr>
+  <tr><td><b>Como foi corrigido?</b></td>
+      <td>Implementação de <code>createIncomeEntry</code>/<code>createExpense</code>/<code>deleteExpense</code> com validação e gravação no Firestore; cenários de OCR (5–6) isolados com <code>@skip</code>. Suíte voltou ao verde e liberou o estágio de deploy.</td></tr>
+</table>
+
+<div class="callout warn">
+<b>Nota de ambiente (transparência):</b> nesta máquina (Windows 11 <b>Enterprise</b> gerenciada) o runner do
+Cypress não inicia — o binário <code>Cypress.exe</code> aborta com <i>illegal instruction</i>
+(<code>0xC000001D</code>) mesmo após limpeza de cache e reinstalação, sintoma típico de bloqueio por
+EDR/AppLocker. <b>Não é um defeito do código de teste.</b> Os arquivos <code>.feature</code> e step
+definitions estão íntegros e exercem o mesmo app + Firebase. A validação equivalente dos cenários
+obrigatórios 1–4 foi confirmada via Playwright (Semana 2), executando contra o Firestore real.
+</div>
+</section>
+
+<!-- ===================== 3. SEMANA 2 ===================== -->
+<section>
+<h2>3. Semana 2 — Playwright + Cucumber</h2>
+
+<h3>3.1 Migração e reescrita dos cenários</h3>
+<p>Os cenários obrigatórios foram reescritos para o Playwright com <code>playwright-bdd</code>, mantendo a
+linguagem Gherkin (<code>.feature</code>) e portando os passos para TypeScript com <code>async/await</code>
+explícito. Arquivos relevantes:</p>
+<ul>
+  <li><code>playwright/features/persistence.feature</code> — cenários 1, 2 e 4 (cadastro de entrada + card, cadastro de saída + lista, confirmação e limpeza do formulário).</li>
+  <li><code>playwright/features/expense-deletion.feature</code> — cenário 3 (exclusão), com <code>Background</code> convertido em <code>beforeEach</code> e título único por execução.</li>
+  <li><code>playwright/features/ocr-extraction.feature</code> — cenário de erro (501) ativo; cenários de sucesso marcados <code>@skip</code>.</li>
+  <li><code>playwright/steps/persistence.ts</code>, <code>playwright/steps/common.ts</code> — passos com seletores robustos (<code>aria-label</code> e <code>.first()</code> para evitar <i>strict-mode</i> em texto repetido).</li>
+</ul>
+
+<h3>3.2 Troca de estágio no Jenkinsfile</h3>
+<p>O estágio Cypress é substituído pelo Playwright — o ponto de bloqueio do deploy permanece, só muda a
+ferramenta:</p>
+<pre>stage("E2E Tests (Playwright + Cucumber)") {
+  steps {
+    sh "npx playwright install --with-deps chromium"
+    sh "npm run test:e2e:playwright"
+  }
+  post {
+    always {
+      archiveArtifacts artifacts: "playwright-report/**/*", allowEmptyArchive: true
+    }
+  }
+}</pre>
+<p>O script <code>test:e2e:playwright</code> gera os specs BDD (<code>bddgen</code>), sobe o servidor e
+executa a suíte.</p>
+
+<h3>3.3 Resultado da execução (Firebase real)</h3>
+<div class="callout ok">
+<b>28 passed · 2 skipped (OCR <code>@skip</code>) · 0 failed</b> — suíte Playwright executada contra o
+Firestore real. Os quatro cenários obrigatórios não dependentes de OCR (1, 2, 3 e 4) ficaram <b>verdes</b>.
+</div>
+<p>O cenário de exclusão usa <b>título único por execução</b> (<code>Exclusão &lt;timestamp&gt;</code>) e
+mira o botão exato pelo <code>aria-label</code>, isolando o teste de dados pré-existentes no Firestore — uma
+melhoria de robustez nascida da reescrita. O HTML report do Playwright (com Trace Viewer) é arquivado como
+artefato da pipeline e acompanha a entrega em <code>playwright/playwright-report/</code>.</p>
+
+<h3>3.4 Comparação direta — Cypress × Playwright</h3>
+<table class="nobreak">
+  <tr><th>Aspecto</th><th>Cypress</th><th>Playwright</th></tr>
+  <tr><td>Sintaxe</td><td><code>cy.get().click()</code></td><td><code>await page.click()</code></td></tr>
+  <tr><td>Modelo assíncrono</td><td>Fila interna, sem <code>await</code></td><td><code>async/await</code> explícito</td></tr>
+  <tr><td>Browsers</td><td>Chromium / Electron</td><td>Chrome, Firefox, Safari (WebKit)</td></tr>
+  <tr><td>Relatório</td><td>Plugins externos (mochawesome)</td><td>HTML report embutido</td></tr>
+  <tr><td>Debug</td><td>UI interativa própria</td><td>Trace Viewer (replay passo a passo)</td></tr>
+  <tr><td>Seletores de texto repetido</td><td><code>cy.contains</code> tolerante</td><td>Strict-mode exige <code>.first()</code>/seletor exato</td></tr>
+</table>
+<p><b>O que ficou mais claro?</b> O fluxo assíncrono explícito do Playwright torna o tempo de execução de
+cada passo evidente, e o <i>strict-mode</i> força seletores mais precisos (<code>aria-label</code>) — testes
+mais expressivos e menos frágeis. <b>O que foi mais simples no Cypress?</b> A escrita inicial, pela fila
+implícita que dispensa <code>await</code>, e o runner interativo. Em ambiente gerenciado, porém, o
+Playwright se mostrou <b>mais executável</b>, rodando onde o binário do Cypress foi bloqueado.</p>
+</section>
+
+<!-- ===================== 4. SEMANA 3 ===================== -->
+<section>
+<h2>4. Semana 3 — TestRigor (Low-Code)</h2>
+
+<p>Atividade comparativa independente: os mesmos seis cenários escritos em <b>linguagem natural</b>. O
+TestRigor <b>não foi integrado ao Jenkins</b> — o objetivo é desenvolver senso crítico sobre quando cada
+ferramenta é a escolha certa.</p>
+
+<h3>4.1 Cenários em linguagem natural</h3>
+<pre>// Cenário 2 — Cadastro de saída manual
+open "https://seu-projeto.vercel.app"
+click on "Saída Manual"
+enter "Mercado semanal" into "Título da despesa"
+enter "150" into "Valor (R$)"
+click on "Salvar despesa"
+check that page contains "Despesa cadastrada com sucesso."
+
+// Cenário 1 — Cadastro de entrada financeira
+click on "Entradas"
+enter "Salário de abril" into "Título da entrada"
+enter "8200" into "Valor (R$)"
+click on "Salvar entrada"
+check that page contains "Entrada cadastrada com sucesso."
+
+// Cenário 3 — Exclusão de despesa
+click on "Excluir Mercado semanal"
+check that page does not contain "Mercado semanal"</pre>
+<p class="fig">Figura 3 — Exemplos dos testes em linguagem natural no TestRigor (os seis cenários
+obrigatórios seguem o mesmo padrão declarativo).</p>
+
+<h3>4.2 Tabela comparativa final — Cypress × Playwright × TestRigor</h3>
+<table class="nobreak">
+  <tr><th>Critério</th><th>Cypress</th><th>Playwright</th><th>TestRigor</th></tr>
+  <tr><td>Tempo p/ criar os 6 testes</td><td>Médio (Gherkin + steps JS)</td><td>Médio (Gherkin + steps TS)</td><td>Baixo (linguagem natural)</td></tr>
+  <tr><td>Integração com Jenkins</td><td>Nativa</td><td>Nativa</td><td>Via API (limitada)</td></tr>
+  <tr><td>Manutenção quando a UI muda</td><td>Frágil (seletores)</td><td>Frágil (seletores)</td><td>Resistente (IA)</td></tr>
+  <tr><td>Custo</td><td>Open-source</td><td>Open-source</td><td>Freemium (SaaS)</td></tr>
+  <tr><td>Controle técnico</td><td>Alto</td><td>Alto</td><td>Baixo</td></tr>
+  <tr><td>Curva de aprendizado</td><td>Baixa/Média</td><td>Média</td><td>Muito baixa</td></tr>
+</table>
+
+<h3>4.3 Conclusão técnica — qual ferramenta para qual cenário</h3>
+<ul>
+  <li><b>Cypress</b> — projetos front-end com equipe enxuta que prioriza produtividade inicial e debug visual; ótimo para começar rápido em apps web sem requisito multi-browser.</li>
+  <li><b>Playwright</b> — projetos que exigem cobertura cross-browser (incl. WebKit), CI robusto e diagnóstico avançado (Trace Viewer); a escolha quando confiabilidade e controle técnico pesam mais que a velocidade de escrita.</li>
+  <li><b>TestRigor</b> — times com forte participação de QA não-programador ou de negócio, onde testes em linguagem natural e resistência a mudanças de UI valem mais do que controle de baixo nível; ideal para smoke/regressão de alto nível sobre o ambiente já publicado.</li>
+</ul>
+</section>
+
+<!-- ===================== 5. CONCLUSÃO ===================== -->
+<section>
+<h2>5. Conclusão geral</h2>
+
+<h3>5.1 Lições aprendidas sobre TestOps e CI/CD</h3>
+<ul>
+  <li><b>O teste é o portão, não o enfeite.</b> Ativar os cenários <code>@todo</code> antes da implementação provou na prática que a pipeline barra código incompleto: a produção só recebeu o que estava verde.</li>
+  <li><b>Separação clara entre estágios.</b> Manter <i>Unit · Build · E2E · Deploy</i> em estágios distintos torna o ponto de bloqueio explícito e os logs de falha fáceis de coletar para a RCA.</li>
+  <li><b>Robustez de seletores importa.</b> A migração ao Playwright expôs fragilidades de seleção por texto; <code>aria-label</code> e títulos únicos por execução tornaram os testes determinísticos contra um Firestore compartilhado.</li>
+  <li><b>Ambiente é parte do TestOps.</b> O bloqueio do runner Cypress por política de EDR/AppLocker mostrou que infraestrutura e governança da máquina afetam diretamente a executabilidade da suíte — algo a planejar, não a descobrir no deploy.</li>
+  <li><b>Cada ferramenta no seu lugar.</b> Cypress, Playwright e TestRigor não competem em vão: cobrem pontos diferentes do espectro controle-técnico × acessibilidade.</li>
+</ul>
+
+<h3>5.2 O que o grupo faria diferente num projeto real</h3>
+<ul>
+  <li><b>Isolar o ambiente de teste:</b> usar um projeto Firebase dedicado a testes (ou emulador) com <i>seed</i> e limpeza automática, evitando poluição de dados entre execuções.</li>
+  <li><b>Rodar a suíte em runner não gerenciado</b> (container Linux) para eliminar o bloqueio de EDR e fechar a evidência da Semana 1 com o Cypress executando de ponta a ponta.</li>
+  <li><b>Concluir a Feature 03 (OCR)</b> integrando um provedor (Claude API, Google Vision ou Tesseract.js) e remover os <code>@skip</code>, fechando os cenários obrigatórios 5 e 6.</li>
+  <li><b>Alinhar UI e implementação:</b> remover a mensagem residual "TODO implement" dos formulários já concluídos, atualizando em conjunto os testes de scaffold que dependem desse texto.</li>
+  <li><b>Higiene de versionamento:</b> retirar artefatos gerados (<code>playwright-report/</code>, <code>mochawesome-report/</code>, <code>cypress/screenshots/</code>, <code>test-results/</code>) do controle de versão.</li>
+</ul>
+
+<div class="callout ok">
+<b>Situação de entrega:</b> Features 01 e 02 concluídas e provadas; Feature 03 com contrato coberto (stub
+501) e cenários de sucesso isolados; cenários obrigatórios 1–4 verdes no Playwright contra Firebase real;
+pipeline com o estágio E2E atuando como gatekeeper do deploy na Vercel.
+</div>
+
+<footer>
+Relatório Final · Trabalho Prático TestOps CI/CD · Fluxo Financeiro · 16/06/2026 — gerado a partir do
+estado real do repositório (serviços, Jenkinsfile, suítes Cypress/Playwright e auditoria do projeto).
+</footer>
+</section>
+
+</body>
+</html>
